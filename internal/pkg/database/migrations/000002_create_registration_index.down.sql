@@ -1,1 +1,1 @@
-DROP INDEX IF EXISTS registration_idx
+DROP INDEX IF EXISTS read_at_idx

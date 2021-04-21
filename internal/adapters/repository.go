@@ -28,18 +28,19 @@ type PIDRepositoryModel struct {
 }
 
 var insertPIDStatement = `
-	INSERT INTO pids (event_id, registration, license, pid, reading)
-		VALUES ($1, $2, $3, $4, $5)`
+	INSERT INTO pids (event_id, registered_at, license, pid, reading, read_at)
+		VALUES ($1, $2, $3, $4, $5, $6)`
 
 // InsertKey Inserts a key into the repository
 func (r *PIDRepository) InsertPID(id string, p pid.PID) error {
 	_, err := r.db.Exec(
 		insertPIDStatement,
 		p.EventID,
-		p.At,
+		time.Now(),
 		id,
 		p.PID,
 		p.Value,
+		p.At,
 	)
 	return err
 }

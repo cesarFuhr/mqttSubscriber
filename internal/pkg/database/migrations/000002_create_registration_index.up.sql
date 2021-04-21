@@ -1,1 +1,1 @@
-CREATE INDEX IF NOT EXISTS registration_idx ON pids(registration DESC)
+CREATE INDEX IF NOT EXISTS read_at_idx ON pids(read_at DESC)

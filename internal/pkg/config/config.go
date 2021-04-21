@@ -26,6 +26,9 @@ type Config struct {
 		Password      string `envconfig:"MQTT_BROKER_PASSWORD"`
 		AutoReconnect bool   `envconfig:"MQTT_AUTORECONNECT"`
 	}
+	Subscriber struct {
+		Qos byte `envconfig:"SUBSCRIBER_QOS"`
+	}
 	Db struct {
 		Host         string `envconfig:"DB_HOST"`
 		Port         int    `envconfig:"DB_PORT"`

@@ -42,7 +42,7 @@ func run() {
 
 	mqttPort := ports.NewMQTTPort(application)
 
-	subs := subscriber.NewSubscriber(l, c, mqttPort)
+	subs := subscriber.NewSubscriber(l, c, mqttPort, cfg.Subscriber.Qos)
 	if err := subs.ListenAndHandle(); err != nil {
 		log.Fatal("Error listening", err)
 	}
@@ -56,6 +56,7 @@ func gracefullShutdown(ctx context.Context, e chan struct{}, teardown func()) {
 	defer cancel()
 
 	teardown()
+	log.Println("Goodbye...")
 }
 
 func newApplication(cfg config.Config, l logger.Logger, c mqtt.Client, db *sql.DB) (app.Application, func()) {
