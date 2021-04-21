@@ -1,0 +1,45 @@
+package adapters
+
+import (
+	"database/sql"
+	"time"
+
+	"github.com/cesarFuhr/mqttSubscriber/internal/domain/pid"
+	// Is there any other way?
+	_ "github.com/lib/pq"
+)
+
+func NewPIDRepository(db *sql.DB) PIDRepository {
+	return PIDRepository{
+		db: db,
+	}
+}
+
+type PIDRepository struct {
+	db *sql.DB
+}
+
+type PIDRepositoryModel struct {
+	EventID      string
+	Registration time.Time
+	License      string
+	PID          string
+	Reading      string
+}
+
+var insertPIDStatement = `
+	INSERT INTO pids (event_id, registration, license, pid, reading)
+		VALUES ($1, $2, $3, $4, $5)`
+
+// InsertKey Inserts a key into the repository
+func (r *PIDRepository) InsertPID(id string, p pid.PID) error {
+	_, err := r.db.Exec(
+		insertPIDStatement,
+		p.EventID,
+		p.At,
+		id,
+		p.PID,
+		p.Value,
+	)
+	return err
+}

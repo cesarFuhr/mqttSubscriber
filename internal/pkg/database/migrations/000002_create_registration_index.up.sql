@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS registration_idx ON pids(registration DESC)

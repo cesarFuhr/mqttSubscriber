@@ -5,12 +5,25 @@ MQTT_BROKER_PORT=17083
 MQTT_AUTORECONNECT=true
 MQTT_BROKER_USER=
 MQTT_BROKER_PASSWORD=
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=dJ42YeQeneP3y8y3
+DB_NAME=carmon
+DB_DRIVER=postgres
+DB_MAX_OPEN_CONNS=5
 APP_WORKERS_NUMBER=1
 
 APP_ENV_STRING = SERVER_PORT=$(SERVER_PORT) \
 	MQTT_BROKER_HOST=$(MQTT_BROKER_HOST) \
 	MQTT_BROKER_PORT=$(MQTT_BROKER_PORT) \
 	MQTT_AUTORECONNECT=$(MQTT_AUTORECONNECT) \
+	DB_HOST=$(DB_HOST) \
+	DB_PORT=$(DB_PORT) \
+	DB_USER=$(DB_USER) \
+	DB_PASSWORD=$(DB_PASSWORD) \
+	DB_NAME=$(DB_NAME) \
+	DB_DRIVER=$(DB_DRIVER) \
 	APP_WORKERS_NUMBER=$(APP_WORKERS_NUMBER)
 
 build:
@@ -39,6 +52,18 @@ start-local-broker:
 stop-local-broker:
 	docker stop mqttbroker
 	docker rm mqttbroker
+
+start-local-db:
+	docker run --detach --publish 127.0.0.1:$(DB_PORT):$(DB_PORT) \
+		--env POSTGRES_USER=$(DB_USER) \
+		--env POSTGRES_PASSWORD=$(DB_PASSWORD) \
+		--env POSTGRES_DB=$(DB_NAME) \
+		--name subsdb \
+		postgres:alpine
+
+stop-local-db:
+	docker stop subsdb
+	docker rm subsdb
 
 test-unit:
 	go test ./internal/...

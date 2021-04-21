@@ -26,6 +26,15 @@ type Config struct {
 		Password      string `envconfig:"MQTT_BROKER_PASSWORD"`
 		AutoReconnect bool   `envconfig:"MQTT_AUTORECONNECT"`
 	}
+	Db struct {
+		Host         string `envconfig:"DB_HOST"`
+		Port         int    `envconfig:"DB_PORT"`
+		User         string `envconfig:"DB_USER"`
+		Password     string `envconfig:"DB_PASSWORD"`
+		Dbname       string `envconfig:"DB_NAME"`
+		Driver       string `envconfig:"DB_DRIVER"`
+		MaxOpenConns int    `envconfig:"DB_MAX_OPEN_CONNS"`
+	}
 	App struct {
 		Workers struct {
 			Number int `envconfig:"APP_WORKERS_NUMBER"`

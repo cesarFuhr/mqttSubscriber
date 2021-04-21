@@ -1,6 +1,7 @@
 package command
 
 import (
+	"log"
 	"time"
 
 	"github.com/cesarFuhr/mqttSubscriber/internal/domain/pid"
@@ -17,17 +18,24 @@ type StorePIDsHandler struct {
 }
 
 type StorePIDCommand struct {
-	PID   string
-	Value string
-	At    time.Time
+	EventID string
+	At      time.Time
+	PID     string
+	Value   string
 }
 
 func (h *StorePIDsHandler) Handle(id string, p StorePIDCommand) error {
-	err := h.Repo.Store(id, pid.PID{
-		At:    p.At,
-		PID:   p.PID,
-		Value: p.Value,
+	err := h.Repo.InsertPID(id, pid.PID{
+		EventID: p.EventID,
+		At:      p.At,
+		License: id,
+		PID:     p.PID,
+		Value:   p.Value,
 	})
+	if err != nil {
+		log.Println(err)
+		return err
+	}
 
-	return err
+	return nil
 }

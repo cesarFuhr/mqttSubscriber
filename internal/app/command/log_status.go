@@ -1,7 +1,8 @@
 package command
 
 import (
-	"github.com/cesarFuhr/mqttSubscriber/internal/domain/status"
+	"time"
+
 	"github.com/cesarFuhr/mqttSubscriber/internal/pkg/logger"
 	"go.uber.org/zap"
 )
@@ -16,11 +17,17 @@ type LogStatusHandler struct {
 	logger logger.Logger
 }
 
-func (h *LogStatusHandler) Handle(id string, s status.Status) {
+type LogStatusCommand struct {
+	At     time.Time
+	Status bool
+}
+
+func (h *LogStatusHandler) Handle(id string, s LogStatusCommand) error {
 	h.logger.Info(
 		"Received status",
 		zap.String("id", id),
 		zap.Stringer("at", s.At),
 		zap.Bool("status", s.Status),
 	)
+	return nil
 }

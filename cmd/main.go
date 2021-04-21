@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
-	"net/http"
 	"time"
 
 	"github.com/cesarFuhr/mqttSubscriber/internal/adapters"
@@ -11,9 +11,10 @@ import (
 	"github.com/cesarFuhr/mqttSubscriber/internal/app/command"
 	"github.com/cesarFuhr/mqttSubscriber/internal/pkg/broker"
 	"github.com/cesarFuhr/mqttSubscriber/internal/pkg/config"
+	"github.com/cesarFuhr/mqttSubscriber/internal/pkg/database"
 	"github.com/cesarFuhr/mqttSubscriber/internal/pkg/exit"
 	"github.com/cesarFuhr/mqttSubscriber/internal/pkg/logger"
-	"github.com/cesarFuhr/mqttSubscriber/internal/pkg/server"
+	"github.com/cesarFuhr/mqttSubscriber/internal/pkg/subscriber"
 	"github.com/cesarFuhr/mqttSubscriber/internal/ports"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
@@ -33,44 +34,40 @@ func run() {
 	e := make(chan struct{}, 1)
 	exit.ListenToExit(e)
 
-	application, appTeardown := newApplication(cfg)
+	l := logger.NewLogger()
+	c := setupMQTTClient(cfg)
+	db := setupSQLDatabase(cfg)
 
-	gracefullShutdown(ctx, e, appTeardown, server)
+	application, appTeardown := newApplication(cfg, l, c, db)
+
+	mqttPort := ports.NewMQTTPort(application)
+
+	subs := subscriber.NewSubscriber(l, c, mqttPort)
+	if err := subs.ListenAndHandle(); err != nil {
+		log.Fatal("Error listening", err)
+	}
+
+	gracefullShutdown(ctx, e, appTeardown)
 }
 
-func gracefullShutdown(ctx context.Context, e chan struct{}, teardown func(), server *http.Server) {
+func gracefullShutdown(ctx context.Context, e chan struct{}, teardown func()) {
 	<-e
 	_, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	if err := server.Shutdown(ctx); err != nil {
-		log.Println(err)
-	}
 	teardown()
 }
 
-func newServer(cfg config.Config, a app.Application) *http.Server {
-	logger := logger.NewLogger()
-	server := server.NewHTTPServer(logger, ports.NewHttpPort(a))
-	server.Addr = ":" + cfg.Server.Port
-	return server
-}
-
-func newApplication(cfg config.Config) (app.Application, func()) {
-
-	mqttClient := setupMQTTClient(cfg)
-	statusPublisher := adapters.NewStatusPublisher(mqttClient)
-	pidPublisher := adapters.NewPIDPublisher(mqttClient)
-
-	license := "ISS-1312"
+func newApplication(cfg config.Config, l logger.Logger, c mqtt.Client, db *sql.DB) (app.Application, func()) {
+	r := adapters.NewPIDRepository(db)
 
 	return app.Application{
 			Commands: app.Commands{
-				NotifyStatus: command.NewStatusHandler(license, &statusPublisher),
-				NotifyPIDs:   command.NewPIDsHandler(license, &pidPublisher),
+				LogStatus: command.NewLogStatusHandler(l),
+				StorePIDs: command.NewStorePIDsHandler(&r),
 			},
 		}, func() {
-			mqttClient.Disconnect(1000)
+			c.Disconnect(1000)
 		}
 }
 
@@ -93,4 +90,25 @@ func setupMQTTClient(cfg config.Config) mqtt.Client {
 	}
 
 	return cli
+}
+
+func setupSQLDatabase(cfg config.Config) *sql.DB {
+	sqlDB, err := database.NewPGDatabase(database.PGConfigs{
+		Host:         cfg.Db.Host,
+		Port:         cfg.Db.Port,
+		User:         cfg.Db.User,
+		Password:     cfg.Db.Password,
+		Dbname:       cfg.Db.Dbname,
+		Driver:       cfg.Db.Driver,
+		MaxOpenConns: cfg.Db.MaxOpenConns,
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	if err := database.MigrateUp(sqlDB); err != nil {
+		panic(err)
+	}
+
+	return sqlDB
 }

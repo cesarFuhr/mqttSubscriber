@@ -1,5 +1,5 @@
 package pid
 
 type Repository interface {
-	Store(string, PID) error
+	InsertPID(string, PID) error
 }
