@@ -56,7 +56,7 @@ stop-local-broker:
 	docker rm mqttbroker
 
 start-local-db:
-	docker run --detach --publish 127.0.0.1:$(DB_PORT):$(DB_PORT) \
+	docker run --detach --publish $(DB_PORT):$(DB_PORT) \
 		--env POSTGRES_USER=$(DB_USER) \
 		--env POSTGRES_PASSWORD=$(DB_PASSWORD) \
 		--env POSTGRES_DB=$(DB_NAME) \

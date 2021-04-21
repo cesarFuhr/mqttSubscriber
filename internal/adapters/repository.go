@@ -36,7 +36,7 @@ func (r *PIDRepository) InsertPID(id string, p pid.PID) error {
 	_, err := r.db.Exec(
 		insertPIDStatement,
 		p.EventID,
-		time.Now(),
+		time.Now().UTC(),
 		id,
 		p.PID,
 		p.Value,
