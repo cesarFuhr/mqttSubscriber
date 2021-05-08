@@ -41,8 +41,6 @@ func (h *MQTT) StorePIDHandler(cli mqtt.Client, msg mqtt.Message) {
 	license := strings.Split(strings.TrimPrefix(msg.Topic(), "carMon/"), "/")[0]
 	pid := strings.TrimPrefix(msg.Topic(), "carMon/"+license+"/param/")
 
-	log.Println(o)
-
 	err := h.application.Commands.StorePIDs.Handle(license, command.StorePIDCommand{
 		EventID:     o.EventID,
 		At:          o.At.AsTime(),
