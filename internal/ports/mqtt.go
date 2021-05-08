@@ -22,10 +22,12 @@ func NewMQTTPort(a app.Application) MQTT {
 }
 
 type PID struct {
-	EventID string
-	At      time.Time
-	PID     string
-	Value   string
+	EventID     string
+	At          time.Time
+	PID         string
+	Description string
+	Value       string
+	Unit        string
 }
 
 func (h *MQTT) StorePIDHandler(cli mqtt.Client, msg mqtt.Message) {
@@ -39,11 +41,15 @@ func (h *MQTT) StorePIDHandler(cli mqtt.Client, msg mqtt.Message) {
 	license := strings.Split(strings.TrimPrefix(msg.Topic(), "carMon/"), "/")[0]
 	pid := strings.TrimPrefix(msg.Topic(), "carMon/"+license+"/param/")
 
+	log.Println(o)
+
 	err := h.application.Commands.StorePIDs.Handle(license, command.StorePIDCommand{
-		EventID: o.EventID,
-		At:      o.At.AsTime(),
-		PID:     pid,
-		Value:   o.Value,
+		EventID:     o.EventID,
+		At:          o.At.AsTime(),
+		PID:         pid,
+		Description: o.Description,
+		Value:       o.Value,
+		Unit:        o.Unit,
 	})
 	if err != nil {
 		return

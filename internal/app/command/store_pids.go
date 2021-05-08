@@ -18,19 +18,23 @@ type StorePIDsHandler struct {
 }
 
 type StorePIDCommand struct {
-	EventID string
-	At      time.Time
-	PID     string
-	Value   string
+	EventID     string
+	At          time.Time
+	PID         string
+	Description string
+	Value       string
+	Unit        string
 }
 
 func (h *StorePIDsHandler) Handle(id string, p StorePIDCommand) error {
 	err := h.Repo.InsertPID(id, pid.PID{
-		EventID: p.EventID,
-		At:      p.At,
-		License: id,
-		PID:     p.PID,
-		Value:   p.Value,
+		EventID:     p.EventID,
+		At:          p.At,
+		License:     id,
+		PID:         p.PID,
+		Description: p.Description,
+		Value:       p.Value,
+		Unit:        p.Unit,
 	})
 	if err != nil {
 		log.Println(err)

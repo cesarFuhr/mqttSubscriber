@@ -5,9 +5,11 @@ import (
 )
 
 type PID struct {
-	EventID string
-	At      time.Time
-	License string
-	PID     string
-	Value   string
+	EventID     string
+	At          time.Time
+	License     string
+	PID         string
+	Description string
+	Value       string
+	Unit        string
 }

@@ -27,12 +27,14 @@ type PIDRepositoryModel struct {
 	Registration time.Time
 	License      string
 	PID          string
+	Description  string
 	Reading      string
+	Unit         string
 }
 
 var insertPIDStatement = `
-	INSERT INTO pids (event_id, registered_at, license, pid, reading, read_at)
-		VALUES ($1, $2, $3, $4, $5, $6)`
+	INSERT INTO pids (event_id, registered_at, license, pid, description, unit, reading, read_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 
 // InsertKey Inserts a key into the repository
 func (r *PIDRepository) InsertPID(id string, p pid.PID) error {
@@ -43,6 +45,8 @@ func (r *PIDRepository) InsertPID(id string, p pid.PID) error {
 		time.Now().UTC(),
 		id,
 		p.PID,
+		p.Description,
+		p.Unit,
 		p.Value,
 		p.At,
 	)
