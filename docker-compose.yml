@@ -34,11 +34,11 @@ services:
     expose:
       - "1883"
     ports:
-      - "17083:1883"
+      - "1883:1883"
   grafana:
     image: "grafana/grafana"
     restart: always
     ports:
-      - "23000:3000"
+      - "3000:3000"
     depends_on:
       - db

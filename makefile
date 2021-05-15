@@ -1,7 +1,7 @@
 # local development environments
 SERVER_PORT=5000
-MQTT_BROKER_HOST=localhost
-MQTT_BROKER_PORT=17083
+MQTT_BROKER_HOST=45.33.119.214
+MQTT_BROKER_PORT=1883
 MQTT_AUTORECONNECT=true
 MQTT_BROKER_USER=
 MQTT_BROKER_PASSWORD=
@@ -40,6 +40,23 @@ run: build
 
 run-dev: build
 	env $(APP_ENV_STRING) ./main
+
+run-docker:
+	docker run \
+		--env SERVER_PORT=$(SERVER_PORT) \
+		--env MQTT_BROKER_HOST=$(MQTT_BROKER_HOST) \
+		--env MQTT_BROKER_PORT=$(MQTT_BROKER_PORT) \
+		--env MQTT_AUTORECONNECT=$(MQTT_AUTORECONNECT) \
+		--env DB_HOST=$(DB_HOST) \
+		--env DB_PORT=$(DB_PORT) \
+		--env DB_USER=$(DB_USER) \
+		--env DB_PASSWORD=$(DB_PASSWORD) \
+		--env DB_NAME=$(DB_NAME) \
+		--env DB_DRIVER=$(DB_DRIVER) \
+		--env SUBSCRIBER_QOS=$(SUBSCRIBER_QOS) \
+		--env APP_WORKERS_NUMBER=$(APP_WORKERS_NUMBER) \
+		--name mqttsubscriber \
+		mqttsubs:latest
 
 watch-dev: build
 	env $(APP_ENV_STRING) air -c air.toml
