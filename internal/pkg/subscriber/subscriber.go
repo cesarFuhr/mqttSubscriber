@@ -34,6 +34,10 @@ func (s *Subscriber) ListenAndHandle() error {
 		return token.Error()
 	}
 
+	if token := s.client.Subscribe("carMon/+/dtc/+", s.qos, mqttLogger(s.logger, s.port.StoreDTCHandler)); token.Wait() && token.Error() != nil {
+		return token.Error()
+	}
+
 	if token := s.client.Subscribe("carMon/+/status", s.qos, mqttLogger(s.logger, s.port.LogStatusHandler)); token.Wait() && token.Error() != nil {
 		return token.Error()
 	}

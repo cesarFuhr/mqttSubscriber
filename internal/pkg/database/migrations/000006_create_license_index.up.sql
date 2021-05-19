@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS license_dtc_idx ON dtcs(license)

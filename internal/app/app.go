@@ -9,4 +9,5 @@ type Application struct {
 type Commands struct {
 	LogStatus command.LogStatusHandler
 	StorePIDs command.StorePIDsHandler
+	StoreDTCs command.StoreDTCHandler
 }

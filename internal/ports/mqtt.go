@@ -56,6 +56,30 @@ func (h *MQTT) StorePIDHandler(cli mqtt.Client, msg mqtt.Message) {
 	msg.Ack()
 }
 
+func (h *MQTT) StoreDTCHandler(cli mqtt.Client, msg mqtt.Message) {
+	o := &DTCNotification{}
+
+	if err := proto.Unmarshal(msg.Payload(), o); err != nil {
+		log.Println("Could not unmarshal")
+		return
+	}
+
+	license := strings.Split(strings.TrimPrefix(msg.Topic(), "carMon/"), "/")[0]
+	dtc := strings.TrimPrefix(msg.Topic(), "carMon/"+license+"/dtc/")
+
+	err := h.application.Commands.StoreDTCs.Handle(license, command.StoreDTCCOmmand{
+		EventID:     o.EventID,
+		At:          o.At.AsTime(),
+		DTC:         dtc,
+		Description: o.Description,
+	})
+	if err != nil {
+		return
+	}
+
+	msg.Ack()
+}
+
 type Status struct {
 	At     time.Time
 	Status bool

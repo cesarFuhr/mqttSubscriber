@@ -60,12 +60,14 @@ func gracefullShutdown(ctx context.Context, e chan struct{}, teardown func()) {
 }
 
 func newApplication(cfg config.Config, l logger.Logger, c mqtt.Client, db *sql.DB) (app.Application, func()) {
-	r := adapters.NewPIDRepository(db)
+	pidsR := adapters.NewPIDRepository(db)
+	dtcsR := adapters.NewDTCRepository(db)
 
 	return app.Application{
 			Commands: app.Commands{
 				LogStatus: command.NewLogStatusHandler(l),
-				StorePIDs: command.NewStorePIDsHandler(&r),
+				StorePIDs: command.NewStorePIDsHandler(&pidsR),
+				StoreDTCs: command.NewStoreDTCHandler(&dtcsR),
 			},
 		}, func() {
 			c.Disconnect(1000)

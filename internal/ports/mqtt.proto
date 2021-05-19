@@ -3,7 +3,7 @@ package mqtt;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/cesarFuhr/mqttPublisher/internal/ports";
+option go_package = "github.com/cesarFuhr/mqttSubscriber/internal/ports";
 
 message StatusNotification {
   bool Status = 1;
@@ -16,4 +16,10 @@ message PIDNotification {
   string Unit = 3;
   string Description = 4;
   google.protobuf.Timestamp At = 5;
+}
+
+message DTCNotification {
+  string EventID = 1;
+  string Description = 2;
+  google.protobuf.Timestamp At = 3;
 }

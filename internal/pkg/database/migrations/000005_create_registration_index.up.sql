@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS read_at_dtc_idx ON dtcs(read_at DESC)
